@@ -13,7 +13,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
   <!-- Header -->
-  <header class="bg-gray-800 text-white py-4">
+  <header class="bg-blue-600 text-white py-4">
     <div class="max-w-6xl mx-auto text-center">
       <h1 class="text-3xl font-bold">Advanced Mortgage Calculator</h1>
       <p class="text-sm">Plan your mortgage wisely with our interactive calculator</p>
@@ -69,6 +69,15 @@
               <label for="insurance" class="block text-sm font-medium text-gray-700">Annual Home Insurance ($)</label>
               <input type="number" id="insurance" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual home insurance" required>
             </div>
+            <!-- Extra Payment Options -->
+            <div>
+              <label for="extraMonthly" class="block text-sm font-medium text-gray-700">Extra Monthly Payment ($)</label>
+              <input type="number" id="extraMonthly" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Optional extra monthly payment">
+            </div>
+            <div>
+              <label for="extraYearly" class="block text-sm font-medium text-gray-700">Extra Yearly Payment ($)</label>
+              <input type="number" id="extraYearly" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Optional extra yearly payment">
+            </div>
             <!-- Calculate Button -->
             <button type="button" onclick="calculateMortgage()" class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
           </form>
@@ -86,7 +95,8 @@
   <!-- Footer -->
   <footer class="bg-gray-800 text-white py-4 mt-4">
     <div class="max-w-6xl mx-auto text-center">
-      <p class="text-sm">"Disclaimer: This calculator is for informational purposes only and should not be considered financial advice. Please consult with a professional for personalized advice."</p>
+      <p class="text-sm">&copy; 2025 Your Company Name. All rights reserved.</p>
+      <p class="text-xs mt-2">Disclaimer: This calculator is for informational purposes only and not a substitute for professional advice.</p>
     </div>
   </footer>
 
@@ -116,11 +126,9 @@
       return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     }
 
-    // Chart.js variables
+    // Chart.js variables and custom label plugin
     const ctx = document.getElementById('amortizationChart').getContext('2d');
     let amortizationChart;
-
-    // Custom plugin to draw a static label at the upper left corner of the chart area
     const customLabelPlugin = {
       id: 'customLabel',
       beforeDraw(chart) {
@@ -149,11 +157,10 @@
       let balance = P;
       let period = 0;
       data.push({ month: 0, balance: balance });
-      while (balance > 0 && period < 1000 * 26) { // safety loop limit
+      while (balance > 0 && period < 1000 * 26) {
         let interestForPeriod = balance * r_bi;
         balance = balance + interestForPeriod - biWeeklyPayment;
         period++;
-        // Approximate conversion: 14 days ≈ 0.47 months
         let monthEquivalent = period * 14 / 30;
         data.push({ month: monthEquivalent, balance: balance > 0 ? balance : 0 });
       }
@@ -216,19 +223,23 @@
     });
 
     function calculateMortgage() {
-      // Retrieve form values
+      // Retrieve standard form values
       const loanAmount = parseFloat(principalInput.value);
       const annualInterestRate = parseFloat(document.getElementById('interest').value);
       const years = parseFloat(document.getElementById('years').value);
       const annualTaxes = parseFloat(document.getElementById('taxes').value);
       const annualInsurance = parseFloat(document.getElementById('insurance').value);
 
+      // Retrieve extra payment values (default to 0 if empty)
+      const extraMonthly = parseFloat(document.getElementById('extraMonthly').value) || 0;
+      const extraYearly = parseFloat(document.getElementById('extraYearly').value) || 0;
+
       if (isNaN(loanAmount) || isNaN(annualInterestRate) || isNaN(years) || isNaN(annualTaxes) || isNaN(annualInsurance) || loanAmount <= 0) {
         document.getElementById('result').innerHTML = `<p class="text-center text-red-600">Please fill in all fields correctly.</p>`;
         return;
       }
 
-      // Monthly calculations
+      // Standard monthly calculations using annuity formula
       const n = years * 12;
       const r_monthly = annualInterestRate / 100 / 12;
       const monthlyPI = loanAmount * r_monthly * Math.pow(1 + r_monthly, n) / (Math.pow(1 + r_monthly, n) - 1);
@@ -240,13 +251,13 @@
       const annualPayment = (monthlyPI * 12) + annualTaxes + annualInsurance;
       const payoffDateMonthly = addMonths(new Date(), n);
 
-      // Bi-weekly calculations:
+      // Bi-weekly calculations (unchanged)
       const biWeeklyPayment = monthlyPI / 2;
       const r_bi = Math.pow(1 + annualInterestRate / 100, 1 / 26) - 1;
       let balance = loanAmount;
       let totalInterestBi = 0;
       let periods = 0;
-      while (balance > 0 && periods < 1000 * 26) { // safeguard loop limit
+      while (balance > 0 && periods < 1000 * 26) {
         let interestForPeriod = balance * r_bi;
         totalInterestBi += interestForPeriod;
         balance = balance + interestForPeriod - biWeeklyPayment;
@@ -260,12 +271,39 @@
       const yearsBi = periods / 26;
       const interestSavings = totalInterestMonthly - totalInterestBi;
 
-      // Prepare amortization data for the chart
+      // Simulate extra payment scenario using a month-by-month loop
+      function simulateExtraPayments(P, r_monthly, monthlyPI, extraMonthly, extraYearly) {
+        let balance = P;
+        let totalInterestExtra = 0;
+        let monthsExtra = 0;
+        while (balance > 0) {
+          let interest = balance * r_monthly;
+          totalInterestExtra += interest;
+          let payment = monthlyPI + extraMonthly;
+          // Apply extra yearly payment at the end of every 12 months
+          if ((monthsExtra + 1) % 12 === 0) {
+            payment += extraYearly;
+          }
+          if (payment > balance + interest) {
+            payment = balance + interest;
+          }
+          let principalPayment = payment - interest;
+          balance -= principalPayment;
+          monthsExtra++;
+          if (monthsExtra > 1000 * 12) break;
+        }
+        return { months: monthsExtra, totalInterest: totalInterestExtra };
+      }
+      const extraResult = simulateExtraPayments(loanAmount, r_monthly, monthlyPI, extraMonthly, extraYearly);
+      const payoffDateExtra = addMonths(new Date(), extraResult.months);
+      const interestSavingsExtra = totalInterestMonthly - extraResult.totalInterest;
+
+      // Prepare amortization data for the chart (unchanged)
       const monthlyData = getMonthlyAmortizationData(loanAmount, r_monthly, n);
       const biWeeklyData = getBiWeeklyAmortizationData(loanAmount, r_bi, biWeeklyPayment);
       renderChart(monthlyData, biWeeklyData);
 
-      // Build detailed results HTML
+      // Build detailed results HTML including the extra payment scenario
       const resultHTML = `
         <h3 class="text-lg font-semibold">Monthly Payment Schedule</h3>
         <ul class="list-disc list-inside text-sm">
@@ -284,6 +322,13 @@
           <li><strong>Effective Term:</strong> ${yearsBi.toFixed(2)} years</li>
           <li><strong>Total Interest Paid (Bi-weekly):</strong> $${totalInterestBi.toFixed(2)}</li>
           <li><strong>Interest Savings vs. Monthly:</strong> $${interestSavings.toFixed(2)}</li>
+        </ul>
+
+        <h3 class="text-lg font-semibold mt-6">Extra Payment Scenario</h3>
+        <ul class="list-disc list-inside text-sm">
+          <li><strong>Payoff Date with Extra Payments:</strong> ${formatDate(payoffDateExtra)}</li>
+          <li><strong>Total Interest Paid (Extra Payments):</strong> $${extraResult.totalInterest.toFixed(2)}</li>
+          <li><strong>Interest Savings vs. Standard Schedule:</strong> $${interestSavingsExtra.toFixed(2)}</li>
         </ul>
       `;
       document.getElementById('result').innerHTML = resultHTML;
