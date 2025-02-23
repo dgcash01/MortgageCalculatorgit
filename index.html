@@ -1,51 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mortgage Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Mortgage Calculator</title>
   <!-- htmx for dynamic interactions -->
   <script src="https://unpkg.com/htmx.org@1.9.2"></script>
   <!-- Tailwind CSS for styling -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-  <div class="bg-white shadow-lg p-6 rounded-lg w-full max-w-md">
-    <h1 class="text-2xl font-bold mb-4 text-center">Mortgage Calculator</h1>
-    <form id="calculator" class="space-y-4">
-      <div>
-        <label for="principal" class="block text-sm font-medium text-gray-700">Principal ($)</label>
-        <input type="number" id="principal" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter amount" required>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden">
+    <div class="md:flex">
+      <!-- Left Side: Form -->
+      <div class="md:w-1/2 p-6 border-r border-gray-200">
+        <h1 class="text-2xl font-bold mb-4 text-center">Mortgage Calculator</h1>
+        <form id="calculator" class="space-y-4">
+          <!-- Home Price -->
+          <div>
+            <label for="price" class="block text-sm font-medium text-gray-700">Home Price ($)</label>
+            <input type="number" id="price" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter home price" required>
+          </div>
+          <!-- Down Payment -->
+          <div>
+            <label for="downPayment" class="block text-sm font-medium text-gray-700">Down Payment ($)</label>
+            <input type="number" id="downPayment" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter down payment" required>
+          </div>
+          <!-- Calculated Loan Amount -->
+          <div>
+            <label for="principal" class="block text-sm font-medium text-gray-700">Loan Amount ($)</label>
+            <input type="number" id="principal" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Calculated automatically" readonly>
+          </div>
+          <!-- Interest Rate -->
+          <div>
+            <label for="interest" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+            <input type="number" id="interest" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual interest rate" required>
+          </div>
+          <!-- Loan Term -->
+          <div>
+            <label for="years" class="block text-sm font-medium text-gray-700">Loan Term (Years)</label>
+            <input type="number" id="years" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Loan duration in years" required>
+          </div>
+          <!-- Annual Property Taxes -->
+          <div>
+            <label for="taxes" class="block text-sm font-medium text-gray-700">Annual Property Taxes ($)</label>
+            <input type="number" id="taxes" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual property taxes" required>
+          </div>
+          <!-- Annual Home Insurance -->
+          <div>
+            <label for="insurance" class="block text-sm font-medium text-gray-700">Annual Home Insurance ($)</label>
+            <input type="number" id="insurance" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual home insurance" required>
+          </div>
+          <!-- Calculate Button -->
+          <button type="button" onclick="calculateMortgage()" class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
+        </form>
       </div>
-      <div>
-        <label for="interest" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
-        <input type="number" id="interest" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual interest rate" required>
+
+      <!-- Right Side: Results -->
+      <div class="md:w-1/2 p-6">
+        <h2 class="text-xl font-bold mb-4 text-center">Results</h2>
+        <div id="result" class="space-y-4 text-gray-800"></div>
       </div>
-      <div>
-        <label for="years" class="block text-sm font-medium text-gray-700">Loan Term (Years)</label>
-        <input type="number" id="years" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Loan duration in years" required>
-      </div>
-      <button type="button" onclick="calculateMortgage()" class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
-    </form>
-    <div id="result" class="mt-4 text-center"></div>
+    </div>
   </div>
 
   <script>
+    // Update loan amount based on home price and down payment
+    const priceInput = document.getElementById('price');
+    const downPaymentInput = document.getElementById('downPayment');
+    const principalInput = document.getElementById('principal');
+
+    function updatePrincipal() {
+      const price = parseFloat(priceInput.value) || 0;
+      const downPayment = parseFloat(downPaymentInput.value) || 0;
+      const loanAmount = price - downPayment;
+      principalInput.value = loanAmount > 0 ? loanAmount.toFixed(2) : "";
+    }
+
+    priceInput.addEventListener('input', updatePrincipal);
+    downPaymentInput.addEventListener('input', updatePrincipal);
+
+    // Helper function to add months to a date
+    function addMonths(date, months) {
+      const d = new Date(date);
+      d.setMonth(d.getMonth() + months);
+      return d;
+    }
+
+    // Helper function to format dates
+    function formatDate(date) {
+      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
     function calculateMortgage() {
-      const principal = parseFloat(document.getElementById('principal').value);
-      const interest = parseFloat(document.getElementById('interest').value) / 100 / 12;
+      // Retrieve form values
+      const loanAmount = parseFloat(principalInput.value);
+      const annualInterestRate = parseFloat(document.getElementById('interest').value);
       const years = parseFloat(document.getElementById('years').value);
-      const n = years * 12;
-      
-      // Calculate monthly payment using the formula for an annuity
-      const monthlyPayment = principal * interest * Math.pow(1 + interest, n) / (Math.pow(1 + interest, n) - 1);
-      
-      const resultEl = document.getElementById('result');
-      if (!isNaN(monthlyPayment) && isFinite(monthlyPayment)) {
-        resultEl.innerHTML = `<p>Your monthly payment is: <strong>$${monthlyPayment.toFixed(2)}</strong></p>`;
-      } else {
-        resultEl.innerHTML = `<p>Please fill in all fields correctly.</p>`;
+      const annualTaxes = parseFloat(document.getElementById('taxes').value);
+      const annualInsurance = parseFloat(document.getElementById('insurance').value);
+
+      if (isNaN(loanAmount) || isNaN(annualInterestRate) || isNaN(years) || isNaN(annualTaxes) || isNaN(annualInsurance) || loanAmount <= 0) {
+        document.getElementById('result').innerHTML = `<p class="text-center text-red-600">Please fill in all fields correctly.</p>`;
+        return;
       }
+
+      // Monthly calculations
+      const n = years * 12; // total months
+      const r_monthly = annualInterestRate / 100 / 12;
+      // Monthly principal & interest using annuity formula
+      const monthlyPI = loanAmount * r_monthly * Math.pow(1 + r_monthly, n) / (Math.pow(1 + r_monthly, n) - 1);
+      const monthlyTaxes = annualTaxes / 12;
+      const monthlyInsurance = annualInsurance / 12;
+      const totalInterestMonthly = (monthlyPI * n) - loanAmount;
+      const totalTaxes = monthlyTaxes * n;
+      const totalInsurance = monthlyInsurance * n;
+      const annualPayment = (monthlyPI * 12) + annualTaxes + annualInsurance;
+      const payoffDateMonthly = addMonths(new Date(), n);
+
+      // Bi-weekly calculations:
+      // Assume bi-weekly payment is half the monthly PI payment, paid every 2 weeks.
+      const biWeeklyPayment = monthlyPI / 2;
+      // Convert annual rate to bi-weekly rate (26 periods per year)
+      const r_bi = Math.pow(1 + annualInterestRate / 100, 1 / 26) - 1;
+      let balance = loanAmount;
+      let totalInterestBi = 0;
+      let periods = 0;
+      // Simulate bi-weekly amortization until the balance is paid off
+      while (balance > 0 && periods < 1000 * 26) { // safeguard against infinite loops
+        let interestForPeriod = balance * r_bi;
+        totalInterestBi += interestForPeriod;
+        balance = balance + interestForPeriod - biWeeklyPayment;
+        periods++;
+        if (balance < 0) {
+          balance = 0;
+          break;
+        }
+      }
+      // Calculate payoff date for bi-weekly schedule by adding (periods * 14 days) to today
+      const payoffDateBi = new Date(new Date().getTime() + periods * 14 * 24 * 60 * 60 * 1000);
+      const yearsBi = periods / 26;
+      const interestSavings = totalInterestMonthly - totalInterestBi;
+
+      // Build results HTML
+      const resultHTML = `
+        <h3 class="text-lg font-semibold">Monthly Payment Schedule</h3>
+        <ul class="list-disc list-inside text-sm">
+          <li><strong>Loan Payoff Date:</strong> ${formatDate(payoffDateMonthly)}</li>
+          <li><strong>Monthly Taxes:</strong> $${monthlyTaxes.toFixed(2)}</li>
+          <li><strong>Monthly Home Insurance:</strong> $${monthlyInsurance.toFixed(2)}</li>
+          <li><strong>Annual Payment Amount:</strong> $${annualPayment.toFixed(2)}</li>
+          <li><strong>Total Interest Paid:</strong> $${totalInterestMonthly.toFixed(2)}</li>
+          <li><strong>Total Taxes Paid:</strong> $${totalTaxes.toFixed(2)}</li>
+          <li><strong>Total Insurance Paid:</strong> $${totalInsurance.toFixed(2)}</li>
+        </ul>
+
+        <h3 class="text-lg font-semibold mt-6">Bi-weekly Payment Schedule</h3>
+        <ul class="list-disc list-inside text-sm">
+          <li><strong>Estimated Payoff Date:</strong> ${formatDate(payoffDateBi)}</li>
+          <li><strong>Effective Term:</strong> ${yearsBi.toFixed(2)} years</li>
+          <li><strong>Total Interest Paid (Bi-weekly):</strong> $${totalInterestBi.toFixed(2)}</li>
+          <li><strong>Interest Savings vs. Monthly:</strong> $${interestSavings.toFixed(2)}</li>
+        </ul>
+      `;
+
+      document.getElementById('result').innerHTML = resultHTML;
     }
   </script>
 </body>
