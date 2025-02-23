@@ -8,61 +8,87 @@
   <script src="https://unpkg.com/htmx.org@1.9.2"></script>
   <!-- Tailwind CSS for styling -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Chart.js library for the chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden">
-    <div class="md:flex">
-      <!-- Left Side: Form -->
-      <div class="md:w-1/2 p-6 border-r border-gray-200">
-        <h1 class="text-2xl font-bold mb-4 text-center">Mortgage Calculator</h1>
-        <form id="calculator" class="space-y-4">
-          <!-- Home Price -->
-          <div>
-            <label for="price" class="block text-sm font-medium text-gray-700">Home Price ($)</label>
-            <input type="number" id="price" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter home price" required>
-          </div>
-          <!-- Down Payment -->
-          <div>
-            <label for="downPayment" class="block text-sm font-medium text-gray-700">Down Payment ($)</label>
-            <input type="number" id="downPayment" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter down payment" required>
-          </div>
-          <!-- Calculated Loan Amount -->
-          <div>
-            <label for="principal" class="block text-sm font-medium text-gray-700">Loan Amount ($)</label>
-            <input type="number" id="principal" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Calculated automatically" readonly>
-          </div>
-          <!-- Interest Rate -->
-          <div>
-            <label for="interest" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
-            <input type="number" id="interest" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual interest rate" required>
-          </div>
-          <!-- Loan Term -->
-          <div>
-            <label for="years" class="block text-sm font-medium text-gray-700">Loan Term (Years)</label>
-            <input type="number" id="years" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Loan duration in years" required>
-          </div>
-          <!-- Annual Property Taxes -->
-          <div>
-            <label for="taxes" class="block text-sm font-medium text-gray-700">Annual Property Taxes ($)</label>
-            <input type="number" id="taxes" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual property taxes" required>
-          </div>
-          <!-- Annual Home Insurance -->
-          <div>
-            <label for="insurance" class="block text-sm font-medium text-gray-700">Annual Home Insurance ($)</label>
-            <input type="number" id="insurance" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual home insurance" required>
-          </div>
-          <!-- Calculate Button -->
-          <button type="button" onclick="calculateMortgage()" class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
-        </form>
-      </div>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-gray-800 text-white py-4">
+    <div class="max-w-6xl mx-auto text-center">
+      <h1 class="text-3xl font-bold">Advanced Mortgage Calculator</h1>
+      <p class="text-sm">Plan your mortgage wisely with our interactive calculator</p>
+    </div>
+  </header>
 
-      <!-- Right Side: Results -->
-      <div class="md:w-1/2 p-6">
-        <h2 class="text-xl font-bold mb-4 text-center">Results</h2>
-        <div id="result" class="space-y-4 text-gray-800"></div>
+  <!-- Main Content -->
+  <main class="flex-grow">
+    <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4">
+      <!-- Chart Section -->
+      <div class="p-6 border-b border-gray-200 relative">
+        <!-- Canvas container set to a fixed height so an empty chart is visible -->
+        <canvas id="amortizationChart" class="w-full" style="height:300px;"></canvas>
+      </div>
+      
+      <div class="md:flex">
+        <!-- Left Side: Form -->
+        <div class="md:w-1/2 p-6 border-r border-gray-200">
+          <h2 class="text-2xl font-bold mb-4 text-center">Mortgage Calculator</h2>
+          <form id="calculator" class="space-y-4">
+            <!-- Home Price -->
+            <div>
+              <label for="price" class="block text-sm font-medium text-gray-700">Home Price ($)</label>
+              <input type="number" id="price" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter home price" required>
+            </div>
+            <!-- Down Payment -->
+            <div>
+              <label for="downPayment" class="block text-sm font-medium text-gray-700">Down Payment ($)</label>
+              <input type="number" id="downPayment" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter down payment" required>
+            </div>
+            <!-- Calculated Loan Amount -->
+            <div>
+              <label for="principal" class="block text-sm font-medium text-gray-700">Loan Amount ($)</label>
+              <input type="number" id="principal" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Calculated automatically" readonly>
+            </div>
+            <!-- Interest Rate -->
+            <div>
+              <label for="interest" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+              <input type="number" id="interest" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual interest rate" required>
+            </div>
+            <!-- Loan Term -->
+            <div>
+              <label for="years" class="block text-sm font-medium text-gray-700">Loan Term (Years)</label>
+              <input type="number" id="years" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Loan duration in years" required>
+            </div>
+            <!-- Annual Property Taxes -->
+            <div>
+              <label for="taxes" class="block text-sm font-medium text-gray-700">Annual Property Taxes ($)</label>
+              <input type="number" id="taxes" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual property taxes" required>
+            </div>
+            <!-- Annual Home Insurance -->
+            <div>
+              <label for="insurance" class="block text-sm font-medium text-gray-700">Annual Home Insurance ($)</label>
+              <input type="number" id="insurance" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual home insurance" required>
+            </div>
+            <!-- Calculate Button -->
+            <button type="button" onclick="calculateMortgage()" class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
+          </form>
+        </div>
+
+        <!-- Right Side: Detailed Results -->
+        <div class="md:w-1/2 p-6">
+          <h2 class="text-xl font-bold mb-4 text-center">Results</h2>
+          <div id="result" class="space-y-4 text-gray-800"></div>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-4 mt-4">
+    <div class="max-w-6xl mx-auto text-center">
+      <p class="text-sm">&copy; 2025 Your Company Name. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     // Update loan amount based on home price and down payment
@@ -80,17 +106,114 @@
     priceInput.addEventListener('input', updatePrincipal);
     downPaymentInput.addEventListener('input', updatePrincipal);
 
-    // Helper function to add months to a date
+    // Helper functions for dates
     function addMonths(date, months) {
       const d = new Date(date);
       d.setMonth(d.getMonth() + months);
       return d;
     }
-
-    // Helper function to format dates
     function formatDate(date) {
       return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     }
+
+    // Chart.js variables
+    const ctx = document.getElementById('amortizationChart').getContext('2d');
+    let amortizationChart;
+
+    // Custom plugin to draw a static label at the upper left corner of the chart area
+    const customLabelPlugin = {
+      id: 'customLabel',
+      beforeDraw(chart) {
+        const { ctx, chartArea } = chart;
+        ctx.save();
+        ctx.font = "12px sans-serif";
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        ctx.fillText("Amortization Chart", chartArea.left + 5, chartArea.top + 15);
+        ctx.restore();
+      }
+    };
+
+    // Generate monthly amortization data using the remaining balance formula
+    function getMonthlyAmortizationData(P, r_monthly, n) {
+      const data = [];
+      for (let t = 0; t <= n; t++) {
+        const balance = P * (Math.pow(1 + r_monthly, n) - Math.pow(1 + r_monthly, t)) / (Math.pow(1 + r_monthly, n) - 1);
+        data.push(balance);
+      }
+      return data;
+    }
+
+    // Simulate bi-weekly amortization schedule and collect data points
+    function getBiWeeklyAmortizationData(P, r_bi, biWeeklyPayment) {
+      const data = [];
+      let balance = P;
+      let period = 0;
+      data.push({ month: 0, balance: balance });
+      while (balance > 0 && period < 1000 * 26) { // safety loop limit
+        let interestForPeriod = balance * r_bi;
+        balance = balance + interestForPeriod - biWeeklyPayment;
+        period++;
+        // Approximate conversion: 14 days ≈ 0.47 months
+        let monthEquivalent = period * 14 / 30;
+        data.push({ month: monthEquivalent, balance: balance > 0 ? balance : 0 });
+      }
+      return data;
+    }
+
+    // Render the Chart.js line chart with both datasets
+    function renderChart(monthlyData, biWeeklyData) {
+      const labelsMonthly = monthlyData.length > 0 ? monthlyData.map((_, i) => i) : [];
+      if (amortizationChart) {
+        amortizationChart.destroy();
+      }
+      amortizationChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labelsMonthly,
+          datasets: [
+            {
+              label: 'Monthly Payments',
+              data: monthlyData,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              fill: false,
+              tension: 0.1,
+            },
+            {
+              label: 'Bi-Weekly Payments',
+              data: biWeeklyData.length > 0 ? biWeeklyData.map(dp => dp.balance) : [],
+              borderColor: 'rgba(255, 99, 132, 1)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              fill: false,
+              tension: 0.1,
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: 'Mortgage Amortization: Remaining Principal Over Time'
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Months' }
+            },
+            y: {
+              title: { display: true, text: 'Remaining Principal ($)' },
+              beginAtZero: true,
+            }
+          }
+        },
+        plugins: [customLabelPlugin]
+      });
+    }
+
+    // Initialize an empty chart on page load so that the label is visible
+    document.addEventListener('DOMContentLoaded', function() {
+      renderChart([], []);
+    });
 
     function calculateMortgage() {
       // Retrieve form values
@@ -106,9 +229,8 @@
       }
 
       // Monthly calculations
-      const n = years * 12; // total months
+      const n = years * 12;
       const r_monthly = annualInterestRate / 100 / 12;
-      // Monthly principal & interest using annuity formula
       const monthlyPI = loanAmount * r_monthly * Math.pow(1 + r_monthly, n) / (Math.pow(1 + r_monthly, n) - 1);
       const monthlyTaxes = annualTaxes / 12;
       const monthlyInsurance = annualInsurance / 12;
@@ -119,15 +241,12 @@
       const payoffDateMonthly = addMonths(new Date(), n);
 
       // Bi-weekly calculations:
-      // Assume bi-weekly payment is half the monthly PI payment, paid every 2 weeks.
       const biWeeklyPayment = monthlyPI / 2;
-      // Convert annual rate to bi-weekly rate (26 periods per year)
       const r_bi = Math.pow(1 + annualInterestRate / 100, 1 / 26) - 1;
       let balance = loanAmount;
       let totalInterestBi = 0;
       let periods = 0;
-      // Simulate bi-weekly amortization until the balance is paid off
-      while (balance > 0 && periods < 1000 * 26) { // safeguard against infinite loops
+      while (balance > 0 && periods < 1000 * 26) { // safeguard loop limit
         let interestForPeriod = balance * r_bi;
         totalInterestBi += interestForPeriod;
         balance = balance + interestForPeriod - biWeeklyPayment;
@@ -137,12 +256,16 @@
           break;
         }
       }
-      // Calculate payoff date for bi-weekly schedule by adding (periods * 14 days) to today
       const payoffDateBi = new Date(new Date().getTime() + periods * 14 * 24 * 60 * 60 * 1000);
       const yearsBi = periods / 26;
       const interestSavings = totalInterestMonthly - totalInterestBi;
 
-      // Build results HTML
+      // Prepare amortization data for the chart
+      const monthlyData = getMonthlyAmortizationData(loanAmount, r_monthly, n);
+      const biWeeklyData = getBiWeeklyAmortizationData(loanAmount, r_bi, biWeeklyPayment);
+      renderChart(monthlyData, biWeeklyData);
+
+      // Build detailed results HTML
       const resultHTML = `
         <h3 class="text-lg font-semibold">Monthly Payment Schedule</h3>
         <ul class="list-disc list-inside text-sm">
@@ -163,7 +286,6 @@
           <li><strong>Interest Savings vs. Monthly:</strong> $${interestSavings.toFixed(2)}</li>
         </ul>
       `;
-
       document.getElementById('result').innerHTML = resultHTML;
     }
   </script>
