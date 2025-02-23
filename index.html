@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mortgage Calculator</title>
+  <!-- htmx for dynamic interactions -->
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+  <!-- Tailwind CSS for styling -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  <div class="bg-white shadow-lg p-6 rounded-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-4 text-center">Mortgage Calculator</h1>
+    <form id="calculator" class="space-y-4">
+      <div>
+        <label for="principal" class="block text-sm font-medium text-gray-700">Principal ($)</label>
+        <input type="number" id="principal" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter amount" required>
+      </div>
+      <div>
+        <label for="interest" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+        <input type="number" id="interest" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual interest rate" required>
+      </div>
+      <div>
+        <label for="years" class="block text-sm font-medium text-gray-700">Loan Term (Years)</label>
+        <input type="number" id="years" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Loan duration in years" required>
+      </div>
+      <button type="button" onclick="calculateMortgage()" class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
+    </form>
+    <div id="result" class="mt-4 text-center"></div>
+  </div>
+
+  <script>
+    function calculateMortgage() {
+      const principal = parseFloat(document.getElementById('principal').value);
+      const interest = parseFloat(document.getElementById('interest').value) / 100 / 12;
+      const years = parseFloat(document.getElementById('years').value);
+      const n = years * 12;
+      
+      // Calculate monthly payment using the formula for an annuity
+      const monthlyPayment = principal * interest * Math.pow(1 + interest, n) / (Math.pow(1 + interest, n) - 1);
+      
+      const resultEl = document.getElementById('result');
+      if (!isNaN(monthlyPayment) && isFinite(monthlyPayment)) {
+        resultEl.innerHTML = `<p>Your monthly payment is: <strong>$${monthlyPayment.toFixed(2)}</strong></p>`;
+      } else {
+        resultEl.innerHTML = `<p>Please fill in all fields correctly.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
