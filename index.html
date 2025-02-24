@@ -1,541 +1,638 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced Mortgage Calculator</title>
-  <!-- htmx for dynamic interactions -->
-  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
-  <!-- Tailwind CSS for styling -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Chart.js library for the chart -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-  <!-- Header -->
-  <header class="bg-blue-600 text-white py-4">
-    <div class="max-w-6xl mx-auto text-center">
-      <h1 class="text-3xl font-bold">Advanced Mortgage Calculator</h1>
-      <p class="text-sm">Plan your mortgage wisely with our interactive calculator</p>
-    </div>
-  </header>
 
-  <!-- Current Mortgage Market Data Section -->
-  <div id="marketData" class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4 p-6">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Mortgage Calculator</title>
+    <!-- htmx for dynamic interactions -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <!-- Tailwind CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Chart.js library for the chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-gray-700 text-white py-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-3xl font-bold">Advanced Mortgage Calculator</h1>
+            <p class="text-sm text-#cccccc">Plan your mortgage wisely with our interactive calculator</p>
+        </div>
+    </header>
+
+    <!-- Current Mortgage Market Data Section -->
+    <!-- <div id="marketData" class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4 p-6">
     <h2 class="text-xl font-bold mb-2">Current Mortgage Market Data</h2>
     <div id="marketRates" class="text-gray-800">
       <p>Loading market data...</p>
     </div>
-  </div>
+  </div> -->
 
-  <!-- Main Content -->
-  <main class="flex-grow">
-    <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4">
-      <!-- Chart Section with Toggle Button -->
-      <div class="p-6 border-b border-gray-200 relative">
-        <button id="toggleChartBtn" class="absolute top-2 right-2 bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs" onclick="toggleChart()">Hide Chart</button>
-        <div id="chartContainer">
-          <canvas id="amortizationChart" class="w-full" style="height:300px;"></canvas>
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4">
+            <!-- Chart Section with Toggle Button -->
+            <div class="p-6 border-b border-gray-200 relative">
+                <button id="toggleChartBtn"
+                    class="absolute top-2 right-2 bg-blue-400 text-gray-100 px-2 py-1 rounded text-xs"
+                    onclick="toggleChart()">Hide Chart</button>
+                <div id="chartContainer">
+                    <canvas id="amortizationChart" class="w-full" style="height: 200px;"></canvas>
+                </div>
+            </div>
+
+            <div class="md:flex">
+                <!-- Left Side: Form -->
+                <div class="md:w-1/2 p-6 border-r border-gray-200">
+                    <h2 class="text-2xl font-bold mb-4 text-center">Mortgage Calculator</h2>
+                    <form id="calculator" class="space-y-4">
+                        <!-- Home Price -->
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700">Home Price ($)</label>
+                            <input type="number" id="price"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Enter home price" required>
+                        </div>
+                        <!-- Down Payment -->
+                        <div>
+                            <label for="downPayment" class="block text-sm font-medium text-gray-700">Down Payment
+                                ($)</label>
+                            <input type="number" id="downPayment"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Enter down payment" required>
+                        </div>
+                        <!-- Calculated Loan Amount -->
+                        <div>
+                            <label for="principal" class="block text-sm font-medium text-gray-700">Loan Amount
+                                ($)</label>
+                            <input type="number" id="principal"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Calculated automatically" readonly>
+                        </div>
+                        <!-- Interest Rate -->
+                        <div>
+                            <label for="interest" class="block text-sm font-medium text-gray-700">Interest Rate
+                                (%)</label>
+                            <input type="number" id="interest" step="0.01"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Annual interest rate" required>
+                        </div>
+                        <!-- Loan Term -->
+                        <div>
+                            <label for="years" class="block text-sm font-medium text-gray-700">Loan Term (Years)</label>
+                            <input type="number" id="years"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Loan duration in years" required>
+                        </div>
+                        <!-- Annual Property Taxes -->
+                        <div>
+                            <label for="taxes" class="block text-sm font-medium text-gray-700">Annual Property Taxes
+                                ($)</label>
+                            <input type="number" id="taxes"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Annual property taxes" required>
+                        </div>
+                        <!-- Annual Home Insurance -->
+                        <div>
+                            <label for="insurance" class="block text-sm font-medium text-gray-700">Annual Home Insurance
+                                ($)</label>
+                            <input type="number" id="insurance"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Annual home insurance" required>
+                        </div>
+                        <!-- Extra Payment Options -->
+                        <div>
+                            <label for="extraMonthly" class="block text-sm font-medium text-gray-700">Extra Monthly
+                                Payment ($)</label>
+                            <input type="number" id="extraMonthly"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Optional extra monthly payment">
+                        </div>
+                        <div>
+                            <label for="extraYearly" class="block text-sm font-medium text-gray-700">Extra Yearly
+                                Payment ($)</label>
+                            <input type="number" id="extraYearly"
+                                class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                placeholder="Optional extra yearly payment">
+                        </div>
+                        <!-- Refinance Scenario Toggle -->
+                        <div>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" id="simulateRefinance" class="form-checkbox"
+                                    onclick="toggleRefinanceFields()">
+                                <span class="ml-2 text-sm text-gray-700">Simulate Refinance Scenario</span>
+                            </label>
+                        </div>
+                        <!-- Refinance Fields (hidden by default) -->
+                        <div id="refinanceFields" class="hidden space-y-2">
+                            <div>
+                                <label for="newInterest" class="block text-sm font-medium text-gray-700">New Interest
+                                    Rate (%)</label>
+                                <input type="number" id="newInterest" step="0.01"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                    placeholder="Enter new interest rate">
+                            </div>
+                            <div>
+                                <label for="newYears" class="block text-sm font-medium text-gray-700">New Loan Term
+                                    (Years)</label>
+                                <input type="number" id="newYears"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                    placeholder="Enter new loan term">
+                            </div>
+                            <div>
+                                <label for="refinanceCost" class="block text-sm font-medium text-gray-700">Refinance
+                                    Cost ($)</label>
+                                <input type="number" id="refinanceCost"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                    placeholder="Enter refinance cost">
+                            </div>
+                        </div>
+                        <!-- Calculate Button -->
+                        <button type="button" onclick="calculateMortgage()"
+                            class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
+                    </form>
+                </div>
+
+                <!-- Right Side: Detailed Results -->
+                <div class="md:w-1/2 p-6">
+                    <h2 class="text-xl font-bold mb-4 text-center">Results</h2>
+                    <div id="result" class="space-y-4 text-gray-800"></div>
+                </div>
+            </div>
         </div>
-      </div>
-      
-      <div class="md:flex">
-        <!-- Left Side: Form -->
-        <div class="md:w-1/2 p-6 border-r border-gray-200">
-          <h2 class="text-2xl font-bold mb-4 text-center">Mortgage Calculator</h2>
-          <form id="calculator" class="space-y-4">
-            <!-- Home Price -->
-            <div>
-              <label for="price" class="block text-sm font-medium text-gray-700">Home Price ($)</label>
-              <input type="number" id="price" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter home price" required>
-            </div>
-            <!-- Down Payment -->
-            <div>
-              <label for="downPayment" class="block text-sm font-medium text-gray-700">Down Payment ($)</label>
-              <input type="number" id="downPayment" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter down payment" required>
-            </div>
-            <!-- Calculated Loan Amount -->
-            <div>
-              <label for="principal" class="block text-sm font-medium text-gray-700">Loan Amount ($)</label>
-              <input type="number" id="principal" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Calculated automatically" readonly>
-            </div>
-            <!-- Interest Rate -->
-            <div>
-              <label for="interest" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
-              <input type="number" id="interest" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual interest rate" required>
-            </div>
-            <!-- Loan Term -->
-            <div>
-              <label for="years" class="block text-sm font-medium text-gray-700">Loan Term (Years)</label>
-              <input type="number" id="years" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Loan duration in years" required>
-            </div>
-            <!-- Annual Property Taxes -->
-            <div>
-              <label for="taxes" class="block text-sm font-medium text-gray-700">Annual Property Taxes ($)</label>
-              <input type="number" id="taxes" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual property taxes" required>
-            </div>
-            <!-- Annual Home Insurance -->
-            <div>
-              <label for="insurance" class="block text-sm font-medium text-gray-700">Annual Home Insurance ($)</label>
-              <input type="number" id="insurance" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Annual home insurance" required>
-            </div>
-            <!-- Extra Payment Options -->
-            <div>
-              <label for="extraMonthly" class="block text-sm font-medium text-gray-700">Extra Monthly Payment ($)</label>
-              <input type="number" id="extraMonthly" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Optional extra monthly payment">
-            </div>
-            <div>
-              <label for="extraYearly" class="block text-sm font-medium text-gray-700">Extra Yearly Payment ($)</label>
-              <input type="number" id="extraYearly" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Optional extra yearly payment">
-            </div>
-            <!-- Refinance Scenario Toggle -->
-            <div>
-              <label class="inline-flex items-center">
-                <input type="checkbox" id="simulateRefinance" class="form-checkbox" onclick="toggleRefinanceFields()">
-                <span class="ml-2 text-sm text-gray-700">Simulate Refinance Scenario</span>
-              </label>
-            </div>
-            <!-- Refinance Fields (hidden by default) -->
-            <div id="refinanceFields" class="hidden space-y-2">
-              <div>
-                <label for="newInterest" class="block text-sm font-medium text-gray-700">New Interest Rate (%)</label>
-                <input type="number" id="newInterest" step="0.01" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter new interest rate">
-              </div>
-              <div>
-                <label for="newYears" class="block text-sm font-medium text-gray-700">New Loan Term (Years)</label>
-                <input type="number" id="newYears" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter new loan term">
-              </div>
-              <div>
-                <label for="refinanceCost" class="block text-sm font-medium text-gray-700">Refinance Cost ($)</label>
-                <input type="number" id="refinanceCost" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter refinance cost">
-              </div>
-            </div>
-            <!-- Calculate Button -->
-            <button type="button" onclick="calculateMortgage()" class="w-full bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600">Calculate</button>
-          </form>
+
+        <!-- Scenario Comparison Section -->
+        <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4 p-6">
+            <h2 class="text-xl font-bold mb-2">Scenario Comparison</h2>
+            <h3 class="text-xs mb-1">Calculate a mortgage scenario before clicking the Add Scenario button</h3>
+            <button id="addScenarioBtn" class="w-half bg-blue-500 text-white rounded-md p-2 hover:bg-blue-600"
+                onclick="addCurrentScenario()">Add Scenarios</button>
+            <button id="clearScenariosBtn" class="w-half mt-2 bg-red-500 text-white rounded-md p-2 hover:bg-red-600"
+                onclick="clearScenarios()">Clear Scenarios</button>
+            <div id="scenarioComparisonTable" class="mt-4"></div>
         </div>
 
-        <!-- Right Side: Detailed Results -->
-        <div class="md:w-1/2 p-6">
-          <h2 class="text-xl font-bold mb-4 text-center">Results</h2>
-          <div id="result" class="space-y-4 text-gray-800"></div>
+        <!-- Glossary & Educational Content Section -->
+        <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4 p-6">
+            <button id="toggleGlossaryBtn" class="w-full bg-gray-200 text-gray-700 rounded-md p-2 text-sm"
+                onclick="toggleGlossary()">
+                Show Glossary & Educational Content
+            </button>
+            <div id="glossaryContent" class="hidden mt-4 text-gray-800">
+                <h2 class="text-xl font-bold mb-2">Glossary & Educational Content</h2>
+                <ul class="list-disc list-inside">
+                    <li><strong>Principal:</strong> The original sum of money borrowed, or the remaining balance of the
+                        loan.</li>
+                    <li><strong>Interest Rate:</strong> The annual percentage rate charged on the borrowed amount.</li>
+                    <li><strong>Amortization:</strong> The process of gradually reducing a debt through regular payments
+                        that cover both principal and interest.</li>
+                    <li><strong>PMI (Private Mortgage Insurance):</strong> Insurance that protects the lender if you
+                        default on the loan, typically required if your down payment is less than 20%.</li>
+                    <li><strong>Down Payment:</strong> The portion of the home’s purchase price paid upfront, which
+                        reduces the amount you need to borrow.</li>
+                    <li><strong>Refinance:</strong> Replacing an existing loan with a new one, often to secure a lower
+                        interest rate or better terms.</li>
+                    <li><strong>Extra Payments:</strong> Additional amounts paid toward the principal that can reduce
+                        overall interest and shorten the loan term.</li>
+                    <li><strong>Amortization Schedule:</strong> A detailed table showing each periodic payment, breaking
+                        down the amounts applied to interest and principal over the life of the loan.</li>
+                </ul>
+                <p class="mt-4 text-sm">
+                    This calculator and glossary are provided for informational purposes only and are not a substitute
+                    for professional financial advice.
+                    Please consult a financial advisor for personalized guidance.
+                </p>
+            </div>
         </div>
-      </div>
-    </div>
+    </main>
 
-    <!-- Scenario Comparison Section -->
-    <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4 p-6">
-      <h2 class="text-xl font-bold mb-2">Scenario Comparison</h2>
-      <button id="addScenarioBtn" class="w-full bg-indigo-500 text-white rounded-md p-2 hover:bg-indigo-600" onclick="addCurrentScenario()">Add Current Scenario</button>
-      <button id="clearScenariosBtn" class="w-full mt-2 bg-red-500 text-white rounded-md p-2 hover:bg-red-600" onclick="clearScenarios()">Clear Scenarios</button>
-      <div id="scenarioComparisonTable" class="mt-4"></div>
-    </div>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 mt-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm">&copy; 2025 All rights reserved.</p>
+            <p class="text-xs mt-2">Disclaimer: This calculator is for informational purposes only and not a substitute
+                for professional advice.</p>
+        </div>
+    </footer>
 
-    <!-- Glossary & Educational Content Section -->
-    <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4 p-6">
-      <button id="toggleGlossaryBtn" class="w-full bg-gray-200 text-gray-700 rounded-md p-2 text-sm" onclick="toggleGlossary()">
-        Show Glossary & Educational Content
-      </button>
-      <div id="glossaryContent" class="hidden mt-4 text-gray-800">
-        <h2 class="text-xl font-bold mb-2">Glossary & Educational Content</h2>
-        <ul class="list-disc list-inside">
-          <li><strong>Principal:</strong> The original sum of money borrowed, or the remaining balance of the loan.</li>
-          <li><strong>Interest Rate:</strong> The annual percentage rate charged on the borrowed amount.</li>
-          <li><strong>Amortization:</strong> The process of gradually reducing a debt through regular payments that cover both principal and interest.</li>
-          <li><strong>PMI (Private Mortgage Insurance):</strong> Insurance that protects the lender if you default on the loan, typically required if your down payment is less than 20%.</li>
-          <li><strong>Down Payment:</strong> The portion of the home’s purchase price paid upfront, which reduces the amount you need to borrow.</li>
-          <li><strong>Refinance:</strong> Replacing an existing loan with a new one, often to secure a lower interest rate or better terms.</li>
-          <li><strong>Extra Payments:</strong> Additional amounts paid toward the principal that can reduce overall interest and shorten the loan term.</li>
-          <li><strong>Amortization Schedule:</strong> A detailed table showing each periodic payment, breaking down the amounts applied to interest and principal over the life of the loan.</li>
-        </ul>
-        <p class="mt-4 text-sm">
-          This calculator and glossary are provided for informational purposes only and are not a substitute for professional financial advice.
-          Please consult a financial advisor for personalized guidance.
-        </p>
-      </div>
-    </div>
-  </main>
+    <script>
+        // Global variable to store the amortization schedule
+        let amortizationSchedule = [];
 
-  <!-- Footer -->
-  <footer class="bg-gray-800 text-white py-4 mt-4">
-    <div class="max-w-6xl mx-auto text-center">
-      <p class="text-sm">&copy; 2025 Your Company Name. All rights reserved.</p>
-      <p class="text-xs mt-2">Disclaimer: This calculator is for informational purposes only and not a substitute for professional advice.</p>
-    </div>
-  </footer>
+        // Global variables for scenario comparison
+        let currentScenario = {};
+        let scenarios = [];
 
-  <script>
-    // Global variable to store the amortization schedule
-    let amortizationSchedule = [];
+        // Update loan amount based on home price and down payment
+        const priceInput = document.getElementById('price');
+        const downPaymentInput = document.getElementById('downPayment');
+        const principalInput = document.getElementById('principal');
 
-    // Global variables for scenario comparison
-    let currentScenario = {};
-    let scenarios = [];
-
-    // Update loan amount based on home price and down payment
-    const priceInput = document.getElementById('price');
-    const downPaymentInput = document.getElementById('downPayment');
-    const principalInput = document.getElementById('principal');
-
-    function updatePrincipal() {
-      const price = parseFloat(priceInput.value) || 0;
-      const downPayment = parseFloat(downPaymentInput.value) || 0;
-      const loanAmount = price - downPayment;
-      principalInput.value = loanAmount > 0 ? loanAmount.toFixed(2) : "";
-    }
-
-    priceInput.addEventListener('input', updatePrincipal);
-    downPaymentInput.addEventListener('input', updatePrincipal);
-
-    // Toggle Refinance Fields visibility
-    function toggleRefinanceFields() {
-      const refiDiv = document.getElementById('refinanceFields');
-      refiDiv.classList.toggle('hidden');
-    }
-
-    // Toggle the chart display (only hide the canvas container, not the button)
-    function toggleChart() {
-      const chartContainer = document.getElementById('chartContainer');
-      const toggleBtn = document.getElementById('toggleChartBtn');
-      if(chartContainer.classList.contains('hidden')){
-        chartContainer.classList.remove('hidden');
-        toggleBtn.textContent = "Hide Chart";
-      } else {
-        chartContainer.classList.add('hidden');
-        toggleBtn.textContent = "Show Chart";
-      }
-    }
-
-    // Helper functions for dates
-    function addMonths(date, months) {
-      const d = new Date(date);
-      d.setMonth(d.getMonth() + months);
-      return d;
-    }
-    function formatDate(date) {
-      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    }
-
-    // Chart.js variables and custom label plugin
-    const ctx = document.getElementById('amortizationChart').getContext('2d');
-    let amortizationChart;
-    const customLabelPlugin = {
-      id: 'customLabel',
-      beforeDraw(chart) {
-        const { ctx, chartArea } = chart;
-        ctx.save();
-        ctx.font = "12px sans-serif";
-        ctx.fillStyle = "rgba(0,0,0,0.7)";
-        ctx.fillText("Amortization Chart", chartArea.left + 5, chartArea.top + 15);
-        ctx.restore();
-      }
-    };
-
-    // Generate monthly amortization data for chart (remaining balances)
-    function getMonthlyAmortizationData(P, r_monthly, n) {
-      const data = [];
-      for (let t = 0; t <= n; t++) {
-        const balance = P * (Math.pow(1 + r_monthly, n) - Math.pow(1 + r_monthly, t)) / (Math.pow(1 + r_monthly, n) - 1);
-        data.push(balance);
-      }
-      return data;
-    }
-
-    // Simulate bi-weekly amortization schedule and collect data points
-    function getBiWeeklyAmortizationData(P, r_bi, biWeeklyPayment) {
-      const data = [];
-      let balance = P;
-      let period = 0;
-      data.push({ month: 0, balance: balance });
-      while (balance > 0 && period < 1000 * 26) {
-        let interestForPeriod = balance * r_bi;
-        balance = balance + interestForPeriod - biWeeklyPayment;
-        period++;
-        let monthEquivalent = period * 14 / 30;
-        data.push({ month: monthEquivalent, balance: balance > 0 ? balance : 0 });
-      }
-      return data;
-    }
-
-    // Render the Chart.js line chart with both datasets
-    function renderChart(monthlyData, biWeeklyData) {
-      const labelsMonthly = monthlyData.length > 0 ? monthlyData.map((_, i) => i) : [];
-      if (amortizationChart) {
-        amortizationChart.destroy();
-      }
-      amortizationChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labelsMonthly,
-          datasets: [
-            {
-              label: 'Monthly Payments',
-              data: monthlyData,
-              borderColor: 'rgba(54, 162, 235, 1)',
-              backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              fill: false,
-              tension: 0.1,
-            },
-            {
-              label: 'Bi-Weekly Payments',
-              data: biWeeklyData.length > 0 ? biWeeklyData.map(dp => dp.balance) : [],
-              borderColor: 'rgba(255, 99, 132, 1)',
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              fill: false,
-              tension: 0.1,
-            }
-          ]
-        },
-        options: {
-          plugins: {
-            title: {
-              display: true,
-              text: 'Mortgage Amortization: Remaining Principal Over Time'
-            }
-          },
-          scales: {
-            x: {
-              title: { display: true, text: 'Months' }
-            },
-            y: {
-              title: { display: true, text: 'Remaining Principal ($)' },
-              beginAtZero: true,
-            }
-          }
-        },
-        plugins: [customLabelPlugin]
-      });
-    }
-
-    // Generate a full amortization schedule for standard monthly payments,
-    // now including monthly taxes, insurance, and total payment.
-    function generateAmortizationSchedule(P, r_monthly, monthlyPI, n, monthlyTaxes, monthlyInsurance) {
-      let schedule = [];
-      let balance = P;
-      let currentDate = new Date();
-      for (let month = 1; month <= n; month++) {
-        let interest = balance * r_monthly;
-        let principalPayment = monthlyPI - interest;
-        if (principalPayment > balance) {
-          principalPayment = balance;
-          monthlyPI = interest + balance;
+        function formatNumber(num) {
+            return Number(num).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 3
+            });
         }
-        balance -= principalPayment;
-        let paymentDate = addMonths(currentDate, month);
-        schedule.push({
-          Month: month,
-          PaymentDate: formatDate(paymentDate),
-          Payment: monthlyPI, // Principal + Interest
-          Interest: interest,
-          Principal: principalPayment,
-          Taxes: monthlyTaxes,
-          Insurance: monthlyInsurance,
-          TotalPayment: monthlyPI + monthlyTaxes + monthlyInsurance,
-          Balance: balance < 0 ? 0 : balance
+
+        function updatePrincipal() {
+            const price = parseFloat(priceInput.value) || 0;
+            const downPayment = parseFloat(downPaymentInput.value) || 0;
+            const loanAmount = price - downPayment;
+            principalInput.value = loanAmount > 0 ? loanAmount.toFixed(2) : "";
+        }
+
+        priceInput.addEventListener('input', updatePrincipal);
+        downPaymentInput.addEventListener('input', updatePrincipal);
+
+        // Toggle Refinance Fields visibility
+        function toggleRefinanceFields() {
+            const refiDiv = document.getElementById('refinanceFields');
+            refiDiv.classList.toggle('hidden');
+        }
+
+        // Toggle the chart display (only hide the canvas container, not the button)
+        function toggleChart() {
+            const chartContainer = document.getElementById('chartContainer');
+            const toggleBtn = document.getElementById('toggleChartBtn');
+            if (chartContainer.classList.contains('hidden')) {
+                chartContainer.classList.remove('hidden');
+                toggleBtn.textContent = "Hide Chart";
+            } else {
+                chartContainer.classList.add('hidden');
+                toggleBtn.textContent = "Show Chart";
+            }
+        }
+
+        // Helper functions for dates
+        function addMonths(date, months) {
+            const d = new Date(date);
+            d.setMonth(d.getMonth() + months);
+            return d;
+        }
+        function formatDate(date) {
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        // Chart.js variables and custom label plugin
+        const ctx = document.getElementById('amortizationChart').getContext('2d');
+        let amortizationChart;
+        const customLabelPlugin = {
+            id: 'customLabel',
+            beforeDraw(chart) {
+                const { ctx, chartArea } = chart;
+                ctx.save();
+                ctx.font = "12px sans-serif";
+                ctx.fillStyle = "rgba(0,0,0,0.7)";
+                ctx.fillText("Amortization Chart", chartArea.left + 5, chartArea.top + 15);
+                ctx.restore();
+            }
+        };
+
+        // Generate monthly amortization data for chart (remaining balances)
+        function getMonthlyAmortizationData(P, r_monthly, n) {
+            const data = [];
+            for (let t = 0; t <= n; t++) {
+                const balance = P * (Math.pow(1 + r_monthly, n) - Math.pow(1 + r_monthly, t)) / (Math.pow(1 + r_monthly, n) - 1);
+                data.push(balance);
+            }
+            return data;
+        }
+
+        // Simulate bi-weekly amortization schedule and collect data points
+        function getBiWeeklyAmortizationData(P, r_bi, biWeeklyPayment) {
+            const data = [];
+            let balance = P;
+            let period = 0;
+            data.push({ month: 0, balance: balance });
+            while (balance > 0 && period < 1000 * 26) {
+                let interestForPeriod = balance * r_bi;
+                balance = balance + interestForPeriod - biWeeklyPayment;
+                period++;
+                let monthEquivalent = period * 14 / 30;
+                data.push({ month: monthEquivalent, balance: balance > 0 ? balance : 0 });
+            }
+            return data;
+        }
+
+        // Render the Chart.js line chart with both datasets
+        function renderChart(monthlyData, biWeeklyData) {
+            const labelsMonthly = monthlyData.length > 0 ? monthlyData.map((_, i) => i) : [];
+            if (amortizationChart) {
+                amortizationChart.destroy();
+            }
+            amortizationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labelsMonthly,
+                    datasets: [
+                        {
+                            label: 'Monthly Payments',
+                            data: monthlyData,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            fill: false,
+                            tension: 0.1,
+                        },
+                        {
+                            label: 'Bi-Weekly Payments',
+                            data: biWeeklyData.length > 0 ? biWeeklyData.map(dp => dp.balance) : [],
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            fill: false,
+                            tension: 0.1,
+                        }
+                    ]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Mortgage Amortization: Remaining Principal Over Time'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Months' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Remaining Principal ($)' },
+                            beginAtZero: true,
+                        }
+                    }
+                },
+                plugins: [customLabelPlugin]
+            });
+        }
+
+        // Generate a full amortization schedule for standard monthly payments,
+        // now including monthly taxes, insurance, and total payment.
+        function generateAmortizationSchedule(P, r_monthly, monthlyPI, n, monthlyTaxes, monthlyInsurance) {
+            let schedule = [];
+            let balance = P;
+            let currentDate = new Date();
+            for (let month = 1; month <= n; month++) {
+                let interest = balance * r_monthly;
+                let principalPayment = monthlyPI - interest;
+                if (principalPayment > balance) {
+                    principalPayment = balance;
+                    monthlyPI = interest + balance;
+                }
+                balance -= principalPayment;
+                let paymentDate = addMonths(currentDate, month);
+                schedule.push({
+                    Month: month,
+                    PaymentDate: formatDate(paymentDate),
+                    Payment: monthlyPI, // Principal + Interest
+                    Interest: interest,
+                    Principal: principalPayment,
+                    Taxes: monthlyTaxes,
+                    Insurance: monthlyInsurance,
+                    TotalPayment: monthlyPI + monthlyTaxes + monthlyInsurance,
+                    Balance: balance < 0 ? 0 : balance
+                });
+                if (balance <= 0) break;
+            }
+            return schedule;
+        }
+
+        // Download the amortization schedule as a CSV file
+        function downloadAmortizationSchedule() {
+            if (!amortizationSchedule || amortizationSchedule.length === 0) {
+                alert("Please calculate the mortgage first.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Month,Payment Date,Payment,Interest,Principal,Taxes,Insurance,Total Payment,Balance\n";
+            amortizationSchedule.forEach(row => {
+                csvContent += `${row.Month},${row.PaymentDate},${row.Payment.toFixed(2)},${row.Interest.toFixed(2)},${row.Principal.toFixed(2)},${row.Taxes.toFixed(2)},${row.Insurance.toFixed(2)},${row.TotalPayment.toFixed(2)},${row.Balance.toFixed(2)}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "amortization_schedule.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Render the amortization schedule as an HTML table
+        function renderAmortizationTable(schedule) {
+            let html = '<div class="overflow-x-auto"><table class="min-w-full border-collapse">';
+            html += '<thead><tr class="bg-gray-200">';
+            html += '<th class="border px-2 py-1 text-sm">Month</th>';
+            html += '<th class="border px-2 py-1 text-sm">Payment Date</th>';
+            html += '<th class="border px-2 py-1 text-sm">P&I</th>';
+            html += '<th class="border px-2 py-1 text-sm">Interest</th>';
+            html += '<th class="border px-2 py-1 text-sm">Principal</th>';
+            html += '<th class="border px-2 py-1 text-sm">Taxes</th>';
+            html += '<th class="border px-2 py-1 text-sm">Insurance</th>';
+            html += '<th class="border px-2 py-1 text-sm">Total Payment</th>';
+            html += '<th class="border px-2 py-1 text-sm">Balance</th>';
+            html += '</tr></thead><tbody>';
+            schedule.forEach(row => {
+                html += `<tr class="hover:bg-gray-100">`;
+                html += `<td class="border px-2 py-1 text-sm">${row.Month}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">${row.PaymentDate}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(row.Payment)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(row.Interest)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(row.Principal)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(row.Taxes)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(row.Insurance)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(row.TotalPayment)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(row.Balance)}</td>`;
+
+                html += `</tr>`;
+            });
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        // Toggle display of the interactive amortization table
+        function toggleAmortizationTable() {
+            const tableContainer = document.getElementById('amortizationTableContainer');
+            if (tableContainer.classList.contains('hidden')) {
+                if (!tableContainer.innerHTML.trim()) {
+                    tableContainer.innerHTML = renderAmortizationTable(amortizationSchedule);
+                }
+                tableContainer.classList.remove('hidden');
+            } else {
+                tableContainer.classList.add('hidden');
+            }
+        }
+
+        // Fetch current mortgage market data from a real API
+        async function fetchMarketData() {
+            try {
+                // 1. Replace the URL with your actual API endpoint.
+                //    You can include query parameters or headers if needed for authentication.
+                const response = await fetch("https://www.zillow.com/mortgage/api/#/current-rates-example");
+
+                if (!response.ok) {
+                    // If the response is not 2xx, throw an error.
+                    throw new Error("Network response was not ok");
+                }
+
+                // 2. Parse the response as JSON (or text, if your API returns something else).
+                const data = await response.json();
+
+                // 3. Construct the HTML from the API data.
+                //    Adjust property names (averageRate, trend, lastUpdated) based on your API’s actual response format.
+                let html = `<p>Average Mortgage Rate: <strong>${data.averageRate}%</strong></p>`;
+                html += `<p>Trend: <strong>${data.trend === "up" ? "Rising" : "Falling"}</strong></p>`;
+                html += `<p>Last Updated: <strong>${data.lastUpdated}</strong></p>`;
+
+                // 4. Insert the HTML into your page
+                document.getElementById("marketRates").innerHTML = html;
+
+            } catch (error) {
+                // 5. Handle errors (e.g., network error, API error, parse error)
+                console.error("Error fetching market data:", error);
+                document.getElementById("marketRates").innerHTML =
+                    "<p>Unable to load market data at this time.</p>";
+            }
+        }
+
+        // Then call this function when the page loads (or whenever you need fresh data).
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchMarketData();
         });
-        if (balance <= 0) break;
-      }
-      return schedule;
-    }
 
-    // Download the amortization schedule as a CSV file
-    function downloadAmortizationSchedule() {
-      if (!amortizationSchedule || amortizationSchedule.length === 0) {
-        alert("Please calculate the mortgage first.");
-        return;
-      }
-      let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += "Month,Payment Date,Payment,Interest,Principal,Taxes,Insurance,Total Payment,Balance\n";
-      amortizationSchedule.forEach(row => {
-        csvContent += `${row.Month},${row.PaymentDate},${row.Payment.toFixed(2)},${row.Interest.toFixed(2)},${row.Principal.toFixed(2)},${row.Taxes.toFixed(2)},${row.Insurance.toFixed(2)},${row.TotalPayment.toFixed(2)},${row.Balance.toFixed(2)}\n`;
-      });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "amortization_schedule.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
 
-    // Render the amortization schedule as an HTML table
-    function renderAmortizationTable(schedule) {
-      let html = '<div class="overflow-x-auto"><table class="min-w-full border-collapse">';
-      html += '<thead><tr class="bg-gray-200">';
-      html += '<th class="border px-2 py-1 text-sm">Month</th>';
-      html += '<th class="border px-2 py-1 text-sm">Payment Date</th>';
-      html += '<th class="border px-2 py-1 text-sm">P&I</th>';
-      html += '<th class="border px-2 py-1 text-sm">Interest</th>';
-      html += '<th class="border px-2 py-1 text-sm">Principal</th>';
-      html += '<th class="border px-2 py-1 text-sm">Taxes</th>';
-      html += '<th class="border px-2 py-1 text-sm">Insurance</th>';
-      html += '<th class="border px-2 py-1 text-sm">Total Payment</th>';
-      html += '<th class="border px-2 py-1 text-sm">Balance</th>';
-      html += '</tr></thead><tbody>';
-      schedule.forEach(row => {
-        html += `<tr class="hover:bg-gray-100">`;
-        html += `<td class="border px-2 py-1 text-sm">${row.Month}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">${row.PaymentDate}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${row.Payment.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${row.Interest.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${row.Principal.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${row.Taxes.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${row.Insurance.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${row.TotalPayment.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${row.Balance.toFixed(2)}</td>`;
-        html += `</tr>`;
-      });
-      html += '</tbody></table></div>';
-      return html;
-    }
+        // Initialize an empty chart on page load so that the label is visible
+        document.addEventListener('DOMContentLoaded', function () {
+            renderChart([], []);
+            fetchMarketData();
+        });
 
-    // Toggle display of the interactive amortization table
-    function toggleAmortizationTable() {
-      const tableContainer = document.getElementById('amortizationTableContainer');
-      if(tableContainer.classList.contains('hidden')) {
-        if (!tableContainer.innerHTML.trim()) {
-          tableContainer.innerHTML = renderAmortizationTable(amortizationSchedule);
-        }
-        tableContainer.classList.remove('hidden');
-      } else {
-        tableContainer.classList.add('hidden');
-      }
-    }
+        function calculateMortgage() {
+            // Retrieve standard form values
+            const loanAmount = parseFloat(principalInput.value);
+            const annualInterestRate = parseFloat(document.getElementById('interest').value);
+            const years = parseFloat(document.getElementById('years').value);
+            const annualTaxes = parseFloat(document.getElementById('taxes').value);
+            const annualInsurance = parseFloat(document.getElementById('insurance').value);
+            // Extra payment values
+            const extraMonthly = parseFloat(document.getElementById('extraMonthly').value) || 0;
+            const extraYearly = parseFloat(document.getElementById('extraYearly').value) || 0;
 
-    // Fetch current mortgage market data (using dummy data here)
-    function fetchMarketData() {
-      // Simulate an API call with dummy data
-      setTimeout(function(){
-        const data = { averageRate: 3.75, trend: "up", lastUpdated: "2025-02-22" };
-        let html = `<p>Average Mortgage Rate: <strong>${data.averageRate}%</strong></p>`;
-        html += `<p>Trend: <strong>${data.trend === "up" ? "Rising" : "Falling"}</strong></p>`;
-        html += `<p>Last Updated: <strong>${data.lastUpdated}</strong></p>`;
-        document.getElementById('marketRates').innerHTML = html;
-      }, 1000);
-    }
+            if (isNaN(loanAmount) || isNaN(annualInterestRate) || isNaN(years) ||
+                isNaN(annualTaxes) || isNaN(annualInsurance) || loanAmount <= 0) {
+                document.getElementById('result').innerHTML = `<p class="text-center text-red-600">Please fill in all required fields correctly.</p>`;
+                return;
+            }
 
-    // Initialize an empty chart on page load so that the label is visible
-    document.addEventListener('DOMContentLoaded', function(){
-      renderChart([], []);
-      fetchMarketData();
-    });
+            // Standard monthly calculations using annuity formula
+            const n = years * 12;
+            const r_monthly = annualInterestRate / 100 / 12;
+            const monthlyPI = loanAmount * r_monthly * Math.pow(1 + r_monthly, n) / (Math.pow(1 + r_monthly, n) - 1);
+            const monthlyTaxes = annualTaxes / 12;
+            const monthlyInsurance = annualInsurance / 12;
+            const totalInterestMonthly = (monthlyPI * n) - loanAmount;
+            const totalTaxes = monthlyTaxes * n;
+            const totalInsurance = monthlyInsurance * n;
+            const annualPayment = (monthlyPI * 12) + annualTaxes + annualInsurance;
+            const payoffDateMonthly = addMonths(new Date(), n);
 
-    function calculateMortgage() {
-      // Retrieve standard form values
-      const loanAmount = parseFloat(principalInput.value);
-      const annualInterestRate = parseFloat(document.getElementById('interest').value);
-      const years = parseFloat(document.getElementById('years').value);
-      const annualTaxes = parseFloat(document.getElementById('taxes').value);
-      const annualInsurance = parseFloat(document.getElementById('insurance').value);
-      // Extra payment values
-      const extraMonthly = parseFloat(document.getElementById('extraMonthly').value) || 0;
-      const extraYearly = parseFloat(document.getElementById('extraYearly').value) || 0;
+            // Bi-weekly calculations
+            const biWeeklyPayment = monthlyPI / 2;
+            const r_bi = Math.pow(1 + annualInterestRate / 100, 1 / 26) - 1;
+            let balance = loanAmount;
+            let totalInterestBi = 0;
+            let periods = 0;
+            while (balance > 0 && periods < 1000 * 26) {
+                let interestForPeriod = balance * r_bi;
+                totalInterestBi += interestForPeriod;
+                balance = balance + interestForPeriod - biWeeklyPayment;
+                periods++;
+                if (balance < 0) {
+                    balance = 0;
+                    break;
+                }
+            }
+            const payoffDateBi = new Date(new Date().getTime() + periods * 14 * 24 * 60 * 60 * 1000);
+            const yearsBi = periods / 26;
+            const interestSavings = totalInterestMonthly - totalInterestBi;
 
-      if (isNaN(loanAmount) || isNaN(annualInterestRate) || isNaN(years) ||
-          isNaN(annualTaxes) || isNaN(annualInsurance) || loanAmount <= 0) {
-        document.getElementById('result').innerHTML = `<p class="text-center text-red-600">Please fill in all required fields correctly.</p>`;
-        return;
-      }
+            // Simulate extra payment scenario using a month-by-month loop
+            function simulateExtraPayments(P, r_monthly, monthlyPI, extraMonthly, extraYearly) {
+                let balance = P;
+                let totalInterestExtra = 0;
+                let monthsExtra = 0;
+                while (balance > 0) {
+                    let interest = balance * r_monthly;
+                    totalInterestExtra += interest;
+                    let payment = monthlyPI + extraMonthly;
+                    // Apply extra yearly payment at the end of every 12 months
+                    if ((monthsExtra + 1) % 12 === 0) {
+                        payment += extraYearly;
+                    }
+                    if (payment > balance + interest) {
+                        payment = balance + interest;
+                    }
+                    let principalPayment = payment - interest;
+                    balance -= principalPayment;
+                    monthsExtra++;
+                    if (monthsExtra > 1000 * 12) break;
+                }
+                return { months: monthsExtra, totalInterest: totalInterestExtra };
+            }
+            const extraResult = simulateExtraPayments(loanAmount, r_monthly, monthlyPI, extraMonthly, extraYearly);
+            const payoffDateExtra = addMonths(new Date(), extraResult.months);
+            const interestSavingsExtra = totalInterestMonthly - extraResult.totalInterest;
 
-      // Standard monthly calculations using annuity formula
-      const n = years * 12;
-      const r_monthly = annualInterestRate / 100 / 12;
-      const monthlyPI = loanAmount * r_monthly * Math.pow(1 + r_monthly, n) / (Math.pow(1 + r_monthly, n) - 1);
-      const monthlyTaxes = annualTaxes / 12;
-      const monthlyInsurance = annualInsurance / 12;
-      const totalInterestMonthly = (monthlyPI * n) - loanAmount;
-      const totalTaxes = monthlyTaxes * n;
-      const totalInsurance = monthlyInsurance * n;
-      const annualPayment = (monthlyPI * 12) + annualTaxes + annualInsurance;
-      const payoffDateMonthly = addMonths(new Date(), n);
+            // Prepare amortization data for the chart
+            const monthlyData = getMonthlyAmortizationData(loanAmount, r_monthly, n);
+            const biWeeklyData = getBiWeeklyAmortizationData(loanAmount, r_bi, biWeeklyPayment);
+            renderChart(monthlyData, biWeeklyData);
 
-      // Bi-weekly calculations
-      const biWeeklyPayment = monthlyPI / 2;
-      const r_bi = Math.pow(1 + annualInterestRate / 100, 1 / 26) - 1;
-      let balance = loanAmount;
-      let totalInterestBi = 0;
-      let periods = 0;
-      while (balance > 0 && periods < 1000 * 26) {
-        let interestForPeriod = balance * r_bi;
-        totalInterestBi += interestForPeriod;
-        balance = balance + interestForPeriod - biWeeklyPayment;
-        periods++;
-        if (balance < 0) {
-          balance = 0;
-          break;
-        }
-      }
-      const payoffDateBi = new Date(new Date().getTime() + periods * 14 * 24 * 60 * 60 * 1000);
-      const yearsBi = periods / 26;
-      const interestSavings = totalInterestMonthly - totalInterestBi;
+            // Generate full amortization schedule for standard monthly payments,
+            // now including monthly taxes and insurance.
+            amortizationSchedule = generateAmortizationSchedule(loanAmount, r_monthly, monthlyPI, n, monthlyTaxes, monthlyInsurance);
 
-      // Simulate extra payment scenario using a month-by-month loop
-      function simulateExtraPayments(P, r_monthly, monthlyPI, extraMonthly, extraYearly) {
-        let balance = P;
-        let totalInterestExtra = 0;
-        let monthsExtra = 0;
-        while (balance > 0) {
-          let interest = balance * r_monthly;
-          totalInterestExtra += interest;
-          let payment = monthlyPI + extraMonthly;
-          // Apply extra yearly payment at the end of every 12 months
-          if ((monthsExtra + 1) % 12 === 0) {
-            payment += extraYearly;
-          }
-          if (payment > balance + interest) {
-            payment = balance + interest;
-          }
-          let principalPayment = payment - interest;
-          balance -= principalPayment;
-          monthsExtra++;
-          if (monthsExtra > 1000 * 12) break;
-        }
-        return { months: monthsExtra, totalInterest: totalInterestExtra };
-      }
-      const extraResult = simulateExtraPayments(loanAmount, r_monthly, monthlyPI, extraMonthly, extraYearly);
-      const payoffDateExtra = addMonths(new Date(), extraResult.months);
-      const interestSavingsExtra = totalInterestMonthly - extraResult.totalInterest;
+            // Update currentScenario with the latest calculation values
+            // Update currentScenario with extra payment metrics
+            currentScenario = {
+                homePrice: parseFloat(document.getElementById('price').value) || 0,
+                downPayment: parseFloat(document.getElementById('downPayment').value) || 0,
+                interestRate: parseFloat(document.getElementById('interest').value) || 0,
+                loanTerm: parseFloat(document.getElementById('years').value) || 0,
+                monthlyPayment: monthlyPI.toFixed(2),
+                totalInterest: totalInterestMonthly.toFixed(2),
+                payoffDate: formatDate(payoffDateMonthly),
+                extraMonthlyPayment: extraMonthly.toFixed(2),
+                extraYearlyPayment: extraYearly.toFixed(2),
+                extraPayoffDate: formatDate(payoffDateExtra),
+                extraTotalInterest: extraResult.totalInterest.toFixed(2),
+                extraInterestSavings: interestSavingsExtra.toFixed(2)
+            };
 
-      // Prepare amortization data for the chart
-      const monthlyData = getMonthlyAmortizationData(loanAmount, r_monthly, n);
-      const biWeeklyData = getBiWeeklyAmortizationData(loanAmount, r_bi, biWeeklyPayment);
-      renderChart(monthlyData, biWeeklyData);
 
-      // Generate full amortization schedule for standard monthly payments,
-      // now including monthly taxes and insurance.
-      amortizationSchedule = generateAmortizationSchedule(loanAmount, r_monthly, monthlyPI, n, monthlyTaxes, monthlyInsurance);
-
-      // Update currentScenario with the latest calculation values
-      currentScenario = {
-        homePrice: parseFloat(document.getElementById('price').value) || 0,
-        downPayment: parseFloat(document.getElementById('downPayment').value) || 0,
-        interestRate: parseFloat(document.getElementById('interest').value) || 0,
-        loanTerm: parseFloat(document.getElementById('years').value) || 0,
-        monthlyPayment: monthlyPI.toFixed(2),
-        totalInterest: totalInterestMonthly.toFixed(2),
-        payoffDate: formatDate(payoffDateMonthly)
-      };
-
-      // Build detailed results HTML including the download button and toggle table button
-      let resultHTML = `
-        <h3 class="text-lg font-semibold">Monthly Payment Schedule</h3>
-        <ul class="list-disc list-inside text-sm">
-          <li><strong>Loan Payoff Date:</strong> ${formatDate(payoffDateMonthly)}</li>
-          <li><strong>Monthly Taxes:</strong> $${monthlyTaxes.toFixed(2)}</li>
-          <li><strong>Monthly Home Insurance:</strong> $${monthlyInsurance.toFixed(2)}</li>
-          <li><strong>Annual Payment Amount:</strong> $${annualPayment.toFixed(2)}</li>
-          <li><strong>Total Interest Paid:</strong> $${totalInterestMonthly.toFixed(2)}</li>
-          <li><strong>Total Taxes Paid:</strong> $${totalTaxes.toFixed(2)}</li>
-          <li><strong>Total Insurance Paid:</strong> $${totalInsurance.toFixed(2)}</li>
-        </ul>
-
-        <h3 class="text-lg font-semibold mt-6">Bi-weekly Payment Schedule</h3>
-        <ul class="list-disc list-inside text-sm">
-          <li><strong>Estimated Payoff Date:</strong> ${formatDate(payoffDateBi)}</li>
-          <li><strong>Effective Term:</strong> ${yearsBi.toFixed(2)} years</li>
-          <li><strong>Total Interest Paid (Bi-weekly):</strong> $${totalInterestBi.toFixed(2)}</li>
-          <li><strong>Interest Savings vs. Monthly:</strong> $${interestSavings.toFixed(2)}</li>
-        </ul>
+            // Build detailed results HTML including the download button and toggle table button
+            let resultHTML = `
+            <h3 class="text-lg font-semibold">Monthly Payment Schedule</h3>
+            <ul class="list-disc list-inside text-sm">
+              <li><strong>Monthly Payment (P&I):</strong> $${monthlyPI.toFixed(2)}</li>
+              <li><strong>Loan Payoff Date:</strong> ${formatDate(payoffDateMonthly)}</li>
+              <li><strong>Monthly Taxes:</strong> $${monthlyTaxes.toFixed(2)}</li>
+              <li><strong>Monthly Home Insurance:</strong> $${monthlyInsurance.toFixed(2)}</li>
+              <li><strong>Annual Payment Amount:</strong> $${annualPayment.toFixed(2)}</li>
+              <li><strong>Total Interest Paid:</strong> $${totalInterestMonthly.toFixed(2)}</li>
+              <li><strong>Total Taxes Paid:</strong> $${totalTaxes.toFixed(2)}</li>
+              <li><strong>Total Insurance Paid:</strong> $${totalInsurance.toFixed(2)}</li>
+            </ul>
+          
+            <h3 class="text-lg font-semibold mt-6">Bi-weekly Payment Schedule</h3>
+            <ul class="list-disc list-inside text-sm">
+              <li><strong>Monthly Payment (P&I):</strong> $${monthlyPI.toFixed(2)}</li>
+              <li><strong>Bi-Weekly Payment:</strong> $${biWeeklyPayment.toFixed(2)}</li>
+              <li><strong>Estimated Payoff Date:</strong> ${formatDate(payoffDateBi)}</li>
+              <li><strong>Effective Term:</strong> ${yearsBi.toFixed(2)} years</li>
+              <li><strong>Total Interest Paid (Bi-weekly):</strong> $${totalInterestBi.toFixed(2)}</li>
+              <li><strong>Interest Savings vs. Monthly:</strong> $${interestSavings.toFixed(2)}</li>
+            </ul>
 
         <h3 class="text-lg font-semibold mt-6">Extra Payment Scenario</h3>
         <ul class="list-disc list-inside text-sm">
@@ -554,20 +651,20 @@
         <div id="amortizationTableContainer" class="mt-4 hidden"></div>
       `;
 
-      // Refinance scenario simulation
-      if(document.getElementById('simulateRefinance').checked) {
-        const newInterest = parseFloat(document.getElementById('newInterest').value);
-        const newYears = parseFloat(document.getElementById('newYears').value);
-        const refinanceCost = parseFloat(document.getElementById('refinanceCost').value) || 0;
-        if (!isNaN(newInterest) && !isNaN(newYears) && newYears > 0 && newInterest > 0) {
-          const n_new = newYears * 12;
-          const r_new = newInterest / 100 / 12;
-          // Calculate new monthly payment for refinance scenario on the full loan amount
-          const monthlyRefiPayment = loanAmount * r_new * Math.pow(1 + r_new, n_new) / (Math.pow(1 + r_new, n_new) - 1);
-          const totalCostRefi = (monthlyRefiPayment * n_new) + refinanceCost;
-          const totalCostCurrent = monthlyPI * n; // simplified comparison (excluding taxes and insurance)
-          const savingsRefi = totalCostCurrent - totalCostRefi;
-          resultHTML += `
+            // Refinance scenario simulation
+            if (document.getElementById('simulateRefinance').checked) {
+                const newInterest = parseFloat(document.getElementById('newInterest').value);
+                const newYears = parseFloat(document.getElementById('newYears').value);
+                const refinanceCost = parseFloat(document.getElementById('refinanceCost').value) || 0;
+                if (!isNaN(newInterest) && !isNaN(newYears) && newYears > 0 && newInterest > 0) {
+                    const n_new = newYears * 12;
+                    const r_new = newInterest / 100 / 12;
+                    // Calculate new monthly payment for refinance scenario on the full loan amount
+                    const monthlyRefiPayment = loanAmount * r_new * Math.pow(1 + r_new, n_new) / (Math.pow(1 + r_new, n_new) - 1);
+                    const totalCostRefi = (monthlyRefiPayment * n_new) + refinanceCost;
+                    const totalCostCurrent = monthlyPI * n; // simplified comparison (excluding taxes and insurance)
+                    const savingsRefi = totalCostCurrent - totalCostRefi;
+                    resultHTML += `
             <h3 class="text-lg font-semibold mt-6">Refinance Scenario</h3>
             <ul class="list-disc list-inside text-sm">
               <li><strong>New Monthly Payment:</strong> $${monthlyRefiPayment.toFixed(2)}</li>
@@ -575,80 +672,92 @@
               <li><strong>Savings Compared to Original Term:</strong> $${savingsRefi.toFixed(2)}</li>
             </ul>
           `;
-        } else {
-          resultHTML += `<p class="text-sm text-red-600">Please fill in valid refinance details.</p>`;
+                } else {
+                    resultHTML += `<p class="text-sm text-red-600">Please fill in valid refinance details.</p>`;
+                }
+            }
+
+            document.getElementById('result').innerHTML = resultHTML;
         }
-      }
 
-      document.getElementById('result').innerHTML = resultHTML;
-    }
+        function toggleGlossary() {
+            const glossaryContent = document.getElementById('glossaryContent');
+            const toggleGlossaryBtn = document.getElementById('toggleGlossaryBtn');
+            if (glossaryContent.classList.contains('hidden')) {
+                glossaryContent.classList.remove('hidden');
+                toggleGlossaryBtn.textContent = "Hide Glossary & Educational Content";
+            } else {
+                glossaryContent.classList.add('hidden');
+                toggleGlossaryBtn.textContent = "Show Glossary & Educational Content";
+            }
+        }
 
-    function toggleGlossary() {
-      const glossaryContent = document.getElementById('glossaryContent');
-      const toggleGlossaryBtn = document.getElementById('toggleGlossaryBtn');
-      if (glossaryContent.classList.contains('hidden')) {
-        glossaryContent.classList.remove('hidden');
-        toggleGlossaryBtn.textContent = "Hide Glossary & Educational Content";
-      } else {
-        glossaryContent.classList.add('hidden');
-        toggleGlossaryBtn.textContent = "Show Glossary & Educational Content";
-      }
-    }
+        // Function to add the current scenario to the scenarios array
+        function addCurrentScenario() {
+            if (!currentScenario || currentScenario.homePrice === 0) {
+                alert("Please calculate a mortgage first.");
+                return;
+            }
+            let scenarioName = prompt("Enter a name for this scenario:", "Scenario " + (scenarios.length + 1));
+            if (scenarioName === null || scenarioName.trim() === "") {
+                scenarioName = "Scenario " + (scenarios.length + 1);
+            }
+            // Clone the currentScenario object and add a name property
+            const scenarioToAdd = Object.assign({}, currentScenario, { name: scenarioName });
+            scenarios.push(scenarioToAdd);
+            renderScenarioComparisonTable();
+        }
 
-    // Function to add the current scenario to the scenarios array
-    function addCurrentScenario() {
-      if (!currentScenario || currentScenario.homePrice === 0) {
-        alert("Please calculate a mortgage first.");
-        return;
-      }
-      let scenarioName = prompt("Enter a name for this scenario:", "Scenario " + (scenarios.length + 1));
-      if (scenarioName === null || scenarioName.trim() === "") {
-        scenarioName = "Scenario " + (scenarios.length + 1);
-      }
-      // Clone the currentScenario object and add a name property
-      const scenarioToAdd = Object.assign({}, currentScenario, { name: scenarioName });
-      scenarios.push(scenarioToAdd);
-      renderScenarioComparisonTable();
-    }
+        // Function to clear all saved scenarios
+        function clearScenarios() {
+            scenarios = [];
+            renderScenarioComparisonTable();
+        }
 
-    // Function to clear all saved scenarios
-    function clearScenarios() {
-      scenarios = [];
-      renderScenarioComparisonTable();
-    }
+        // Function to render the scenarios comparison table
+        function renderScenarioComparisonTable() {
+            if (scenarios.length === 0) {
+                document.getElementById('scenarioComparisonTable').innerHTML = "<p>No scenarios added yet.</p>";
+                return;
+            }
+            let html = '<div class="overflow-x-auto"><table class="min-w-full border-collapse">';
+            html += '<thead><tr class="bg-gray-200">';
+            html += '<th class="border px-2 py-1 text-sm">Scenario Name</th>';
+            html += '<th class="border px-2 py-1 text-sm">Home Price ($)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Down Payment ($)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Interest Rate (%)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Loan Term (Years)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Monthly Payment ($)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Total Interest ($)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Payoff Date</th>';
+            html += '<th class="border px-2 py-1 text-sm">Extra Monthly Payment ($)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Extra Yearly Payment ($)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Extra Payoff Date</th>';
+            html += '<th class="border px-2 py-1 text-sm">Extra Total Interest ($)</th>';
+            html += '<th class="border px-2 py-1 text-sm">Extra Interest Savings ($)</th>';
+            html += '</tr></thead><tbody>';
+            scenarios.forEach(scenario => {
+                html += `<tr class="hover:bg-gray-100">`;
+                html += `<td class="border px-2 py-1 text-sm">${formatNumber(scenario.homePrice)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">${formatNumber(scenario.homePrice)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">${formatNumber(scenario.downPayment)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">${formatNumber(scenario.interestRate)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">${formatNumber(scenario.loanTerm)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(scenario.monthlyPayment)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(scenario.totalInterest)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">${scenario.payoffDate}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(scenario.extraMonthlyPayment)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(scenario.extraYearlyPayment)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">${scenario.extraPayoffDate}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(scenario.extraTotalInterest)}</td>`;
+                html += `<td class="border px-2 py-1 text-sm">$${formatNumber(scenario.extraInterestSavings)}</td>`;
 
-    // Function to render the scenarios comparison table
-    function renderScenarioComparisonTable() {
-      if (scenarios.length === 0) {
-        document.getElementById('scenarioComparisonTable').innerHTML = "<p>No scenarios added yet.</p>";
-        return;
-      }
-      let html = '<div class="overflow-x-auto"><table class="min-w-full border-collapse">';
-      html += '<thead><tr class="bg-gray-200">';
-      html += '<th class="border px-2 py-1 text-sm">Scenario Name</th>';
-      html += '<th class="border px-2 py-1 text-sm">Home Price ($)</th>';
-      html += '<th class="border px-2 py-1 text-sm">Down Payment ($)</th>';
-      html += '<th class="border px-2 py-1 text-sm">Interest Rate (%)</th>';
-      html += '<th class="border px-2 py-1 text-sm">Loan Term (Years)</th>';
-      html += '<th class="border px-2 py-1 text-sm">Monthly Payment ($)</th>';
-      html += '<th class="border px-2 py-1 text-sm">Total Interest ($)</th>';
-      html += '<th class="border px-2 py-1 text-sm">Payoff Date</th>';
-      html += '</tr></thead><tbody>';
-      scenarios.forEach(scenario => {
-        html += `<tr class="hover:bg-gray-100">`;
-        html += `<td class="border px-2 py-1 text-sm">${scenario.name}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">${scenario.homePrice.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">${scenario.downPayment.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">${scenario.interestRate.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">${scenario.loanTerm.toFixed(2)}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${scenario.monthlyPayment}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">$${scenario.totalInterest}</td>`;
-        html += `<td class="border px-2 py-1 text-sm">${scenario.payoffDate}</td>`;
-        html += `</tr>`;
-      });
-      html += '</tbody></table></div>';
-      document.getElementById('scenarioComparisonTable').innerHTML = html;
-    }
-  </script>
+                html += `</tr>`;
+            });
+            html += '</tbody></table></div>';
+            document.getElementById('scenarioComparisonTable').innerHTML = html;
+        }
+    </script>
 </body>
+
 </html>
