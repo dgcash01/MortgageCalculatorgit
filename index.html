@@ -22,6 +22,14 @@
         </div>
     </header>
 
+    <!-- Current Mortgage Market Data Section -->
+    <div id="marketData" class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4 p-6">
+        <h2 class="text-xl font-bold mb-2">Current Mortgage Market Data</h2>
+        <div id="marketRates" class="text-gray-800">
+            <p>Loading market data...</p>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="flex-grow">
         <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-md overflow-hidden mt-4">
@@ -430,6 +438,18 @@
             } else {
                 tableContainer.classList.add('hidden');
             }
+        }
+        
+        // Fetch current mortgage market data (using dummy data here)
+        function fetchMarketData() {
+            // Simulate an API call with dummy data
+            setTimeout(function () {
+                const data = { averageRate: 3.75, trend: "up", lastUpdated: "2025-02-22" };
+                let html = `<p>Average Mortgage Rate: <strong>${data.averageRate}%</strong></p>`;
+                html += `<p>Trend: <strong>${data.trend === "up" ? "Rising" : "Falling"}</strong></p>`;
+                html += `<p>Last Updated: <strong>${data.lastUpdated}</strong></p>`;
+                document.getElementById('marketRates').innerHTML = html;
+            }, 1000);
         }
 
         // Initialize an empty chart on page load so that the label is visible
